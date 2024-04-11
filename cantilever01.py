@@ -11,17 +11,17 @@ st.image('Figure01.jpg', caption='Cross-Section of Embedded Retaining Wall for I
 st.write("### Input Data")
 col1, col2,col3= st.columns(3)
 
-Depth_excavation=col1.number_input("Depth of Excavation (H)",min_value=0.0, step=0.1,value=5.0)
-Depth_embedment=col2.number_input("Depth of Embedment (D)",min_value=0.0, step=0.1,value=5.0)
-Surcharge_load=col3.number_input("Surcharge Pressure",min_value=0, value=10)
+Depth_excavation=col1.number_input("Depth of Excavation (H)",min_value=0.0, step=0.1,value=4.0)
+Depth_embedment=col2.number_input("Depth of Embedment (D)",min_value=0.0, step=0.1,value=4.0)
+Surcharge_load=col3.number_input("Surcharge Pressure",min_value=0, value=0)
 
-soil01_unitweight=col1.number_input("Unit Weight of Soil 1",min_value=0.0, value=18.0)
-soil01_friction=col2.number_input("Internal Friction of Soil 1",min_value=0, value=30)
-soil01_wall_friction=col3.number_input("Wall Friction of Soil 1",min_value=0, value=0)
+soil01_unitweight=col1.number_input("Unit Weight of Soil 1",min_value=0.0, value=20.0)
+soil01_friction=col2.number_input("Internal Friction of Soil 1",min_value=0, value=35)
+soil01_wall_friction=col3.number_input("Wall Friction of Soil 1",min_value=0, value=20)
 
-soil02_unitweight=col1.number_input("Unit Weight of Soil 2",min_value=0.0, value=18.0)
-soil02_friction=col2.number_input("Internal Friction of Soil 2",min_value=0, value=30)
-soil02_wall_friction=col3.number_input("Wall Friction of Soil 2",min_value=0, value=0)
+soil02_unitweight=col1.number_input("Unit Weight of Soil 2",min_value=0.0, value=20.0)
+soil02_friction=col2.number_input("Internal Friction of Soil 2",min_value=0, value=35)
+soil02_wall_friction=col3.number_input("Wall Friction of Soil 2",min_value=0, value=20)
 
 # Calculation
 
@@ -57,6 +57,7 @@ g1=soil01_unitweight
 q=g1*H+Surcharge_load
 Sa=0.5*Ka1*q*H
 y1=(1/3)*H
+
 
 # for soil 02
 f2_r=soil02_friction*np.pi/180
@@ -112,7 +113,7 @@ for i in range(10):
         M=(-1/6)*g2*(Kp2-Ka2)*z**3+0.5*Pa*(z**2)+Sa*(y1+z)
     else:
         T=((s1+s2)/(D-x))*((z-x)**2)/2-s1*(z-x)+Sa+Sb-0.5*s1*(x-a)
-        M=((s1+s2)/(D-x))*((z-z)**3)/6-s1*((z-z)**2)/2+Sa*(y1+z)+Sb*(z-(1/3)*a)-0.5*s1*(x-a)*(z-(2/3)*x-(1/3)*a)
+        M=((s1+s2)/(D-x))*((z-x)**3)/6-s1*((z-x)**2)/2+Sa*(y1+z)+Sb*(z-(1/3)*a)-0.5*s1*(x-a)*(z-(2/3)*x-(1/3)*a)
     Shear.append(T)
     Moment.append(M)
     i=i+1
@@ -143,6 +144,13 @@ df = pd.DataFrame(
 # Display the data-frame as a chart.
 st.write("### Sectional Forces")
 
-forces_df = df[["No","Depth","Shear", "Moment",]].groupby("Depth").min()
-st.dataframe(forces_df)
-st.line_chart(forces_df)
+forces_df = df[["No","Depth","Shear", "Moment",]].groupby("No").min()
+st.dataframe(forces_df.map("{:,.1f}".format))
+
+
+
+# st.line_chart(forces_df)
+
+chart_data = pd.DataFrame(forces_df, columns=["Depth","Shear", "Moment"])
+
+st.line_chart(chart_data,x="Depth",color=["#f0f", "#04f"])
