@@ -1,0 +1,11 @@
+firebaseConfig = {
+  apiKey: "AIzaSyAWoeU7jrcz2iJWUHUQpOfKa-W7TI-uQFE",
+  authDomain: "cantilever-f038d.firebaseapp.com",
+  projectId: "cantilever-f038d",
+  storageBucket: "cantilever-f038d.appspot.com",
+  messagingSenderId: "842228941349",
+  appId: "1:842228941349:web:66fe01f52468cc2c84f5cc",
+  measurementId: "G-HS27WBF5MK"
+}
+
+https://cantilever-f038d-default-rtdb.europe-west1.firebasedatabase.app/
