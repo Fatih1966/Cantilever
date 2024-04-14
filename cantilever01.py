@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-# import numpy as np
+import numpy as np
 import pyrebase
 from datetime import datetime
 
