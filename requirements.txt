@@ -2,6 +2,5 @@ matplotlib
 streamlit
 pandas
 numpy
-pyrebase
-datetime
+pyrebase4==4.7.1
 math
