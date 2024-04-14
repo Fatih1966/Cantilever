@@ -1,12 +1,12 @@
 # Modules
-import pickle
+# import pickle
 from pathlib import Path
 import streamlit as st
-import streamlit_authenticator as stauth
+# import streamlit_authenticator as stauth
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-import numpy as np
+# import numpy as np
 import pyrebase
 from datetime import datetime
 
