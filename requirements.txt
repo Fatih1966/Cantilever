@@ -1,4 +1,4 @@
 matplotlib
 streamlit
 pandas
-pyrebase4
+pyrebase==3.0.11
