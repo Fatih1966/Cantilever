@@ -1,6 +1,4 @@
+matplotlib
 streamlit
 pandas
-matplotlib
-math
-numpy
-pyrebase
+pyrebase4
