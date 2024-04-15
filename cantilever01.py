@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import math
 import numpy as np
-import pyrebase
+import firebase
 # from datetime import datetime
 
 def cantilever():
@@ -208,12 +208,12 @@ firebaseConfig = {
 }
 
 # Firebase Authentication
-firebase=pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
+app=firebase.initialize_app(firebaseConfig)
+auth = app.auth()
 
 # Database
-db=firebase.database()
-storage = firebase.storage()
+db=app.database()
+storage = app.storage()
 
 st.sidebar.title("Cantilever Wall")
 

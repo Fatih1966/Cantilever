@@ -1,4 +1,4 @@
 matplotlib
 streamlit
 pandas
-pyrebase==3.0.11
+firebase-rest-api 1.11.0
