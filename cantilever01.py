@@ -5,162 +5,227 @@ import streamlit as st
 # import streamlit_authenticator as stauth
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import patheffects
 import math
 import numpy as np
 import firebase
 # from datetime import datetime
 
 def cantilever():
-    st.title("Embedded Cantilever Retaining Walls by HFK - Method 01")
+    try:
+        st.title("Embedded Cantilever Wall")
 
-    st.image('Figure01.jpg', caption='Cross-Section of Embedded Retaining Wall for Input and Output')
+        st.write("### Input Data")
+        
+        st.image('Figure01rev01.tif', caption="Cross-Section")
+        
+        col1, col2,col3= st.columns(3)
 
-    st.write("### Input Data")
-    col1, col2,col3= st.columns(3)
+        Depth_excavation=col1.number_input("Excavation Depth (H)",min_value=0.0, step=0.1,value=4.0)
+        Depth_embedment=col2.number_input("Embedment Depth (D)",min_value=0.0, step=0.1,value=4.0)
+        Surcharge_load=col3.number_input("Surcharge Pressure (q)",min_value=0, step=1,value=0)
 
-    Depth_excavation=col1.number_input("Depth of Excavation (H)",min_value=0.0, step=0.1,value=4.0)
-    Depth_embedment=col2.number_input("Depth of Embedment (D)",min_value=0.0, step=0.1,value=4.0)
-    Surcharge_load=col3.number_input("Surcharge Pressure",min_value=0, value=0)
+        # col2.write("\u03B3 : Unit Weight")
+        # col3.write("\u03C6 : Internal Friction")
+        # col4.write("\u03B4 : Wall Friction")
 
-    soil01_unitweight=col1.number_input("Unit Weight of Soil 1",min_value=0.0, value=20.0)
-    soil01_friction=col2.number_input("Internal Friction of Soil 1",min_value=0, value=35)
-    soil01_wall_friction=col3.number_input("Wall Friction of Soil 1",min_value=0, value=20)
+        soil01_unitweight=col1.number_input("Unit Weight(\u03B3 1)",min_value=0., step=0.5,value=20.)
+        soil01_friction=col2.number_input("Internal Friction(\u03C6 1)",min_value=0, value=35)
+        soil01_wall_friction=col3.number_input("Wall Friction(\u03B4 1)",min_value=0, value=20)
 
-    soil02_unitweight=col1.number_input("Unit Weight of Soil 2",min_value=0.0, value=20.0)
-    soil02_friction=col2.number_input("Internal Friction of Soil 2",min_value=0, value=35)
-    soil02_wall_friction=col3.number_input("Wall Friction of Soil 2",min_value=0, value=20)
-
-    # Calculation
-
-    def kactive(f,l):
-        k1=math.cos(l)/(1+math.sin(f))
-        k2=math.cos(l)
-        k3=(math.sin(f))**2-(math.sin(l))**2
-        k4=math.asin(math.sin(l)/(math.sin(f)))-l
-        k5=math.exp(-k4*math.tan(f))
-        ka=(k1*(k2-k3**0.5))*k5
-        return ka
-
-    def kpassive(f,l):
-        k1=math.cos(l)/(1-math.sin(f))
-        k2=math.cos(l)
-        k3=(math.sin(f))**2-(math.sin(l))**2
-        k4=math.asin(math.sin(l)/(math.sin(f)))+l
-        k5=math.exp(k4*math.tan(f))
-        ka=(k1*(k2+k3**0.5))*k5
-        return ka
-
-    # Geometry
-    H=Depth_excavation
-    D=Depth_embedment
-
-    # for soil 01
-    f1_r=soil01_friction*np.pi/180
-    d1_r=soil01_wall_friction*np.pi/180
-    Ka1 = kactive(f1_r,d1_r)
-
-    Kp1 = 1/Ka1
-    g1=soil01_unitweight
-    q=g1*H+Surcharge_load
-    Sa=0.5*Ka1*q*H
-    y1=(1/3)*H
+        soil02_unitweight=col1.number_input("Unit Weight(\u03B3 2)",min_value=0., step=0.5,value=20.)
+        soil02_friction=col2.number_input("Internal Friction(\u03C6 2)",min_value=0, value=35)
+        soil02_wall_friction=col3.number_input("Wall Friction(\u03B4 2)",min_value=0, value=20)
 
 
-    # for soil 02
-    f2_r=soil02_friction*np.pi/180
-    d2_r=soil02_wall_friction*np.pi/180
-    Ka2 = kactive(f2_r,d2_r)
-    Kp2 = kpassive(f2_r,d2_r)
-    g2=soil02_unitweight
-    Pa=Ka2*q
-    a=Pa/(g2*(Kp2-Ka2))
-    Sb=(a/2)*Pa
 
-    s=(D-a)*Pa/a
-    x1=s*(D-a)**2
-    x2=Sa*(y1+D)
-    x3=Sb*(D-a/3)
-    x4=s*(D-a)
-    x5=Sa+Sb
-    x=D-(x1-6*(x2+x3))/(x4-2*x5)
+        # Calculation
 
-    s1=g2*(Kp2-Ka2)*x-Pa
+        def kactive(f,l):
+            k1=math.cos(l)/(1+math.sin(f))
+            k2=math.cos(l)
+            k3=(math.sin(f))**2-(math.sin(l))**2
+            k4=math.asin(math.sin(l)/(math.sin(f)))-l
+            k5=math.exp(-k4*math.tan(f))
+            ka=(k1*(k2-k3**0.5))*k5
+            return ka
 
-    z1=s*(D-a)
-    z2=Sa+Sb
-    z3=s*(D-a)**2
-    z4=Sa*(y1+D)
-    z5=Sb*(D-a/3)
-    s2=((z1-2*z2)**2)/(z3-6*(z4+z5))-s
+        def kpassive(f,l):
+            k1=math.cos(l)/(1-math.sin(f))
+            k2=math.cos(l)
+            k3=(math.sin(f))**2-(math.sin(l))**2
+            k4=math.asin(math.sin(l)/(math.sin(f)))+l
+            k5=math.exp(k4*math.tan(f))
+            ka=(k1*(k2+k3**0.5))*k5
+            return ka
 
-    slim=g2*(Kp2-Ka2)*D+Kp2*q
+        # Geometry
+        H=Depth_excavation
+        D=Depth_embedment
 
-    st.write("###")
-    st.write("### Output Data")
+        # for soil 01
+        f1_r=soil01_friction*np.pi/180
+        d1_r=soil01_wall_friction*np.pi/180
+        Ka1 = kactive(f1_r,d1_r)
 
-    st.write("##### Critical Values")
+        Kp1 = 1/Ka1
+        g1=soil01_unitweight
+        q=g1*H+Surcharge_load
+        Sa=0.5*Ka1*(q+Surcharge_load)*H
+        y1=(1/3)*H*(q+2*Surcharge_load)/(Surcharge_load+q)
+        
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric(label="Limiting Soil Pressure", value=f"{slim:,.0f}")
-    col2.metric(label="Depth X", value=f"{x:,.2f}")
-    col3.metric(label="Soil Pressure (sigma1) at Depth X", value=f"{s1:,.0f}")
-    col4.metric(label="Soil Pressure (sigma2) at Depth D", value=f"{s2:,.0f}")
 
-    st.write("###### Requirement 1 - Soil Pressure (sigma2) at Depth D < Limiting Soil Pressure ")
-    st.write("###### Requirement 2 - Depth X < Depth D ")
+        # for soil 02
+        f2_r=soil02_friction*np.pi/180
+        d2_r=soil02_wall_friction*np.pi/180
+        Ka2 = kactive(f2_r,d2_r)
+        Kp2 = kpassive(f2_r,d2_r)
+        g2=soil02_unitweight
+        Pa=Ka2*q
+        a=Pa/(g2*(Kp2-Ka2))
+        Sb=(a/2)*Pa
 
-    # Calculate Shear and Moment with Depth below Excavation Level
-    Shear=[]
-    Moment=[]
-    i=0
-    for i in range(20):
-        z=(i)*D/20
-        if z < x:
-            T=0.5*g2*(Kp2-Ka2)*z**2+Pa*z+Sa
-            M=(-1/6)*g2*(Kp2-Ka2)*z**3+0.5*Pa*(z**2)+Sa*(y1+z)
-        else:
-            T=((s1+s2)/(D-x))*((z-x)**2)/2-s1*(z-x)+Sa+Sb-0.5*s1*(x-a)
-            M=((s1+s2)/(D-x))*((z-x)**3)/6-s1*((z-x)**2)/2+Sa*(y1+z)+Sb*(z-(1/3)*a)-0.5*s1*(x-a)*(z-(2/3)*x-(1/3)*a)
-        Shear.append(T)
-        Moment.append(M)
-        i=i+1
-    Shear.append(0)
-    Moment.append(0)
+        s=(D-a)*Pa/a
+        x1=s*(D-a)**2
+        x2=Sa*(y1+D)
+        x3=Sb*(D-a/3)
+        x4=s*(D-a)
+        x5=Sa+Sb
+        x=D-(x1-6*(x2+x3))/(x4-2*x5)
 
-    # Create a data-frame with the payment schedule.
-    section_forces = []
+        s1=g2*(Kp2-Ka2)*x-Pa
 
-    for i in range(0, 21):
-        z=(i)*D/20
-        shear=Shear[i]
-        moment=Moment[i]
-        section_forces.append(
-            [
-                i,
-                z,
-                shear,
-                moment,
-            ]
+        z1=s*(D-a)
+        z2=Sa+Sb
+        z3=s*(D-a)**2
+        z4=Sa*(y1+D)
+        z5=Sb*(D-a/3)
+        s2=((z1-2*z2)**2)/(z3-6*(z4+z5))-s
+
+        slim=g2*(Kp2-Ka2)*D+Kp2*q
+
+        st.write("###")
+        st.write("### Output Data")
+
+        st.write("##### Critical Values")
+
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric(label="Limit Soil Pressure \u03C3", value=f"{slim:,.0f}")
+        col2.metric(label="Depth X", value=f"{x:,.2f}")
+        col3.metric(label="Soil Pressure \u03C3 1", value=f"{s1:,.0f}")
+        col4.metric(label="Soil Pressure \u03C3 2", value=f"{s2:,.0f}")
+        if s2<0 :
+            st.error("###### Soil Pressure (\u03C3 2) must be positive !")
+        if slim/3<s1 or slim/3<s2:          
+            st.error("###### Limiting Soil Pressure (\u03C3) / Factor of Safety(assumed 3) must be higher than Soil Pressures (\u03C3 2) !")
+        if x>D:
+            st.error("###### Depth X must be less than Depth D !")
+
+        # Calculate Shear and Moment with Depth above Excavation Level
+        Depth=[]
+        Shear=[]
+        Moment=[]
+        Zero=[]
+        i=0
+        for i in range(21):
+            z=(i)*H/20
+            T=0.5*(g1*z+2*Surcharge_load)*Ka1*z
+            M=T*z/3*(q+2*Surcharge_load)/(Surcharge_load+q)
+            Zet=0.
+            Depth.append(z)
+            Shear.append(T)
+            Moment.append(M)
+            Zero.append(Zet)
+            i=i+1
+
+
+        # Calculate Shear and Moment with Depth below Excavation Level
+
+        for i in range(21,41):
+            z=(i-20)*D/20
+            depth=z+H
+            if z < x:
+                T=0.5*g2*(Kp2-Ka2)*z**2+Pa*z+Sa
+                M=(-1/6)*g2*(Kp2-Ka2)*z**3+0.5*Pa*(z**2)+Sa*(y1+z)
+                Zet=0.
+            else:
+                T=((s1+s2)/(D-x))*((z-x)**2)/2-s1*(z-x)+Sa+Sb-0.5*s1*(x-a)
+                M=((s1+s2)/(D-x))*((z-x)**3)/6-s1*((z-x)**2)/2+Sa*(y1+z)+Sb*(z-(1/3)*a)-0.5*s1*(x-a)*(z-(2/3)*x-(1/3)*a)
+                Zet=0.
+            Depth.append(depth)
+            Shear.append(T)
+            Moment.append(M)
+            Zero.append(Zet)
+            i=i+1
+
+        Depth.append(0)
+        Shear.append(0)
+        Moment.append(0)
+        Zero.append(0)
+
+        # Create a data-frame with the payment schedule.
+        section_forces = []
+
+        for i in range(0, 41):
+            depth=Depth[i]
+            shear=Shear[i]
+            moment=Moment[i]
+            zero=Zero[i]
+            section_forces.append(
+                [
+                    i,
+                    -depth,
+                    shear,
+                    moment,
+                    zero,
+                ]
+            )
+
+        df = pd.DataFrame(
+            section_forces,
+            columns=["No","Depth", "Shear", "Moment","Zero"],
         )
 
-    df = pd.DataFrame(
-        section_forces,
-        columns=["No","Depth", "Shear", "Moment"],
-    )
+        
+        # Display the data-frame as a chart.
+        st.write("### Sectional Forces")
 
-    # Display the data-frame as a chart.
-    st.write("### Sectional Forces")
+        forces_df = df[["No","Depth","Shear", "Moment"]].groupby("No").min()
+        st.dataframe(forces_df.map("{:,.1f}".format))
 
-    forces_df = df[["No","Depth","Shear", "Moment",]].groupby("No").min()
-    st.dataframe(forces_df.map("{:,.1f}".format))
+        chart_data = pd.DataFrame(df, columns=["Depth","Shear", "Moment","Zero"])
+        # st.write(chart_data)
+
+        # st.line_chart(forces_df)
+
+        # st.line_chart(chart_data,x="Depth",color=["#f0f", "#04f"], use_container_width=True)
+
+        def plot(df):
+            fig,ax=plt.subplots(1,1)
+            ax.plot(df["Shear"],df["Depth"])
+            ax.plot(df["Moment"],df["Depth"])
+            ax.plot(df["Zero"],df["Depth"],color="black",linewidth=6)
+            ax.plot([np.max(Moment), 0], [-H, -H], label="Line",
+            path_effects=[patheffects.withTickedStroke(spacing=7, angle=135)],color="black")
+            ax.plot([np.min(Shear), 0], [0, 0], label="Line",
+            path_effects=[patheffects.withTickedStroke(spacing=7, angle=-45)],color="black")
+            # ax.plot(x=df['Moment'],y=df['Depth'],color='tab:orange')
+            ax.set_xlabel('Moment & Shear')
+            ax.set_ylabel('Depth')
+            ax.grid(True)
+            ax.legend(["Shear","Moment"], loc="lower right")
+            t = ax.text(np.min(Shear)*2/3, -H/2, "Layer1", rotation=0, size=12, bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="b", lw=2))
+            t = ax.text(np.min(Shear)*2/3, -(H+D/2), "Layer2", rotation=0, size=12, bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="b", lw=2))
+            st.pyplot(fig)
+
+        plot(chart_data)
+    except Exception as e:
+        # st.error(str(e))
+        st.error("Check if above requirements are satisfied")
 
 
 
-    # st.line_chart(forces_df)
-
-    chart_data = pd.DataFrame(forces_df, columns=["Depth","Shear", "Moment"])
-
-    st.line_chart(chart_data,x="Depth",color=["#f0f", "#04f"], use_container_width=True)
 
 # # --- USER AUTHENTICATION ---
 # names = ["Fatih Kulac","Sinan Kulac"]
@@ -233,14 +298,14 @@ try:
           st.success('Your account is created successfully')
           user = auth.sign_in_with_email_and_password(email,password)
           db.child(user['localId']).child("ID").set(user['localId'])
-          st.title('Welcome  '+email)
+          st.write('## Welcome  '+email)
           st.info('Login now via login drop down')
 
   if choice=='Login':
       login=st.sidebar.checkbox('Login')
       if login:
           user=auth.sign_in_with_email_and_password(email,password)
-          st.title('Welcome  '+email)
+          st.write('Welcome  '+email)
           cantilever()
 except Exception as e:
     st.error(str(e))
