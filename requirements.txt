@@ -1,4 +1,5 @@
 matplotlib
 streamlit
 pandas
-firebase-rest-api==1.11.0
+firebase_admin
+numpy
