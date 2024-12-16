@@ -41,6 +41,7 @@ def register_authenticate():
 
     # Authentication
 
+    # st.session_state["flag2"]=False
 
     choice = st.sidebar.selectbox('Login / Sign up',['Login','Sign up'])
 
@@ -53,7 +54,6 @@ def register_authenticate():
             if submit:
                 user = auth.create_user(email=email,password=password)
                 create_user(user,password)
-                create_project(user,"default")
                 st.success('Your account is created and added to database successfully')
                 st.markdown('Login now via login drop down')
 
